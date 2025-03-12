@@ -4,12 +4,26 @@
 	"description": "A REST API project, part of Free Code Camp's curriculum",
 	"main": "index.js",
 	"scripts": {
-		"start": "node index.js"
+		"start": "node index.js",
+		"dev": "npx nodemon"
 	},
 	"dependencies": {
+		"@types/express": "^5.0.0",
+		"cors": "^2.8.5",
 		"dotenv": "^8.2.0",
 		"express": "^4.16.4",
-		"cors": "^2.8.5"
+		"helmet": "^8.0.0",
+		"uuid": "^11.1.0",
+		"xss": "^1.0.15"
+	},
+	"devDependencies": {
+		"@types/cors": "^2.8.17",
+		"@types/node": "^22.13.9",
+		"chai": "^5.2.0",
+		"mocha": "^11.1.0",
+		"supertest": "^7.0.0",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.8.2"
 	},
 	"repository": {
 		"url": "https://github.com/freeCodeCamp/boilerplate-project-exercisetracker"
