@@ -1,7 +1,7 @@
+import xss from 'xss';
 import path from 'path'
 import cors from 'cors'
 import helmet from "helmet"
-import xss from 'xss';
 import { v4 as uuidv4 } from 'uuid';
 import express, { json, Request, Response, urlencoded } from "express"
 
@@ -23,7 +23,7 @@ app.get('/', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname + '/views/index.html'))
 });
 
-app.post('/api/users', (req: Request<{}, {}, { username: string }>, res: Response<{error: string} | User>) => {
+app.post('/api/users', (req: Request<{}, {}, { username: string }>, res: Response<{ error: string } | User>) => {
   const username = xss(req.body.username)
 
   if (!username || username.trim() === '') {
@@ -54,3 +54,6 @@ app.post('/api/users', (req: Request<{}, {}, { username: string }>, res: Respons
 app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + process.env.PORT || 3000)
 })
+
+export default app;
+
