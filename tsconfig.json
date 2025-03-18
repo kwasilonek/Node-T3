@@ -1,14 +1,23 @@
 {
   "compilerOptions": {
+    // "noEmit": true,
+    // "module": "NodeNext",
+    // "moduleResolution": "nodenext",
+    // "skipLibCheck": true,
+    // "noEmitOnError": false,
     "strict": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
     },
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    // "allowJs": true,
+    // "allowImportingTsExtensions": true,
   },
+  
   "exclude": ["node_modules/"],
   "include": [
-    "tests/**/*.ts"                     // Include test files
+    "src/*",
+    "tests/**/*.ts",
   ]
 }
