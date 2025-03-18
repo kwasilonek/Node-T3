@@ -5,7 +5,3 @@ export function getFormattedDate(date: Date = new Date()): string {
 
     return `${year}-${month}-${day}`;
 }
-
-export function validateDate(date: string, dateRegex = /^\d{4}-\d{2}-\d{2}$/) {
-    return !dateRegex.test(date)
-}

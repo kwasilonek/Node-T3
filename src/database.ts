@@ -17,7 +17,7 @@ export function init() {
 function deleteDatabase() {
     if (fs.existsSync(DB_FILE)) {
         fs.unlinkSync(DB_FILE);
-        // console.log("Existing database deleted.");
+        console.log("Existing database deleted.");
     }
 }
 
@@ -26,7 +26,7 @@ function createDatabase() {
         if (err) {
             console.error("Error creating database:", err.message);
         } else {
-            // console.log("New SQLite database created.");
+            console.log("New SQLite database created.");
         }
     });
 }
@@ -38,7 +38,7 @@ function createUsersTable() {
               username TEXT NOT NULL
           )`, (err) => {
             if (err) console.error("Error creating users table:", err.message);
-            // else console.log("Users table ready.");
+            else console.log("Users table ready.");
         });
     });
 }
@@ -54,7 +54,7 @@ function createExercisesTable() {
               FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
           )`, (err) => {
             if (err) console.error("Error creating exercises table:", err.message);
-            // else console.wlog("Exercises table ready.");
+            else console.log("Exercises table ready.");
         });
     });
 }
@@ -74,8 +74,6 @@ export async function getUser(key: 'username' | 'id', value: string | number): P
 export function insertUsers(username: string) {
     return new Promise<number>((resolve, reject) => {
         db.serialize(() => {
-            console.log(username);
-
             const stmt = db.prepare('INSERT INTO users (username) VALUES (?)');
 
             stmt.run([username], function (err: any) {

@@ -5,7 +5,7 @@ import helmet from "helmet"
 import { body, ValidationError, validationResult, query } from "express-validator";
 import express, { json, Request, Response, urlencoded } from "express"
 
-import { getFormattedDate, validateDate } from './utils'
+import { getFormattedDate } from './utils'
 import { CreatedExerciseResponse, User, UserExerciseLog } from "@/interfaces"
 import { init, getUser, insertUsers, getAllUsers, insertExercise, getUserExercises } from './database'
 
@@ -185,7 +185,7 @@ app.post('/api/users/:_id/logs', [
   })
 
 app.listen(process.env.PORT || 3000, () => {
-  // console.log('Your app is listening on port ' + process.env.PORT || 3000)
+  console.log('Your app is listening on port ' + process.env.PORT || 3000)
 })
 
 export default app;
