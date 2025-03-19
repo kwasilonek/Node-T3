@@ -15,7 +15,15 @@ init()
 
 app.use(cors())
 app.use(json())
-app.use(helmet())
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https://cdn.freecodecamp.org"],
+    },
+  },
+}))
 app.use(urlencoded())
 app.use(express.static('public'))
 

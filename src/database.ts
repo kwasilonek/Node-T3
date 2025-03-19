@@ -132,6 +132,8 @@ export function getUserExercises(userId: number, from: string, to: string, limit
             params.push(to);
         }
 
+        sql += ` ORDER BY date ASC`;
+
         if (limit > 0) {
             sql += ` LIMIT ?`;
             params.push(limit);
