@@ -5,7 +5,7 @@ import helmet from "helmet"
 import { body, ValidationError, validationResult, query } from "express-validator";
 import express, { json, Request, Response, urlencoded } from "express"
 
-import { getFormattedDate } from './utils'
+import { customDateValidation, getFormattedDate } from './utils'
 import { CreatedExerciseResponse, User, UserExerciseLog } from "@/interfaces"
 import { init, getUser, insertUsers, getAllUsers, insertExercise, getUserExercises } from './database'
 
@@ -108,23 +108,7 @@ app.get('/api/users', async (req: Request, res: Response<{ error: string } | Use
 app.post('/api/users/:_id/exercises', [
   body('date')
     .optional()
-    .custom(value => {
-      if (value === '') {
-        value = new Date().toISOString().split('T')[0];
-      }
-
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        throw new Error('Invalid date format, must be yyyy-mm-dd');
-      }
-
-      const [year, month, day] = value.split('-').map(Number);
-      const date = new Date(year, month - 1, day);
-      if (date.getFullYear() !== year || date.getMonth() + 1 !== month || date.getDate() !== day) {
-        throw new Error('Not a valid date');
-      }
-
-      return true;
-    }),
+    .custom(val => customDateValidation(val, 'date')),
   body('description').exists().withMessage('Missing required description value').isString().isLength({ min: 1 }).withMessage('Min length of description is 1'),
   body('duration').exists().withMessage('Missing required duration value')
     .isNumeric().withMessage('Duration should be a number')
@@ -169,9 +153,9 @@ app.post('/api/users/:_id/exercises', [
 })
 
 app.post('/api/users/:_id/logs', [
-  query('to').optional().isISO8601().withMessage('To must be in YYYY-MM-DD format'),
-  query('from').optional().isISO8601().withMessage('From must be in YYYY-MM-DD format'),
-  query('limit').optional().isNumeric()
+  query('to').optional().custom(val => customDateValidation(val, 'to')),
+  query('from').optional().custom(val => customDateValidation(val, 'from')),
+  query('limit').optional().isNumeric().withMessage('Limit should be a number')
 ],
   async (req: Request<{ _id: string }, {}, {}, { from: string, to: string, limit: number }>, res: Response<{ error: string } | UserExerciseLog | { errors: ValidationError[] }>) => {
 
