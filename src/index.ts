@@ -57,7 +57,7 @@ app.post('/api/users', [
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    res.status(400).json({ errors: errors.array() });
+    res.status(400).json({ errors: errors.array().map(({ msg }) => msg) });
     return
   }
 
@@ -106,14 +106,33 @@ app.get('/api/users', async (req: Request, res: Response<{ error: string } | Use
 })
 
 app.post('/api/users/:_id/exercises', [
-  body('date').isISO8601().withMessage('Date must be in YYYY-MM-DD format'),
-  body('description').isString().isLength({ min: 1 }).withMessage('Missing required description value'),
-  body('duration').isNumeric().withMessage('Missing required duration value')
+  body('date')
+    .optional()
+    .custom(value => {
+      if (value === '') {
+        value = new Date().toISOString().split('T')[0];
+      }
+
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        throw new Error('Invalid date format, must be yyyy-mm-dd');
+      }
+
+      const [year, month, day] = value.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
+      if (date.getFullYear() !== year || date.getMonth() + 1 !== month || date.getDate() !== day) {
+        throw new Error('Not a valid date');
+      }
+
+      return true;
+    }),
+  body('description').exists().withMessage('Missing required description value').isString().isLength({ min: 1 }).withMessage('Min length of description is 1'),
+  body('duration').exists().withMessage('Missing required duration value')
+    .isNumeric().withMessage('Duration should be a number')
 ], async (req: Request<{ _id: string }, {}, { duration?: number; description?: string; date?: string; }>, res: Response<CreatedExerciseResponse | { error: string } | { errors: ValidationError[] }>) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    res.status(400).json({ errors: errors.array() });
+    res.status(400).json({ errors: errors.array().map(({ msg }) => msg) });
     return
   }
 
@@ -159,7 +178,7 @@ app.post('/api/users/:_id/logs', [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
+      res.status(400).json({ errors: errors.array().map(({ msg }) => msg) });
       return
     }
 
