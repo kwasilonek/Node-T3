@@ -195,11 +195,11 @@ app.get('/api/users/:_id/logs', [
 
 
     try {
-      const userExercises = await getUserExercises(userId, from, to, limit)
+      const userExercises = await getUserExercises(userId, from, to)
 
       res.json({
         ...user,
-        logs: userExercises,
+        logs: userExercises.slice(0, limit),
         count: userExercises.length,
       } as UserExerciseLog)
     } catch (err) {

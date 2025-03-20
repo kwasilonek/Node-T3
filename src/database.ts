@@ -115,7 +115,7 @@ export function insertExercise(params: { userId: number, duration: number, descr
     })
 }
 
-export function getUserExercises(userId: number, from: string, to: string, limit: number): Promise<Exercise[]> {
+export function getUserExercises(userId: number, from: string, to: string): Promise<Exercise[]> {
     return new Promise((resolve, reject) => {
         let sql = `SELECT * FROM exercises WHERE userId = ?`;
 
@@ -133,11 +133,6 @@ export function getUserExercises(userId: number, from: string, to: string, limit
         }
 
         sql += ` ORDER BY date ASC`;
-
-        if (limit > 0) {
-            sql += ` LIMIT ?`;
-            params.push(limit);
-        }
 
         db.all(sql, params, (err, rows: Exercise[]) => {
             if (err) {
