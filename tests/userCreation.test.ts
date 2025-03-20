@@ -16,7 +16,7 @@ describe("Users", () => {
         const response = await request(app).post(USER_CREATION_URL).send({ username: "" })
 
         expect(response.status).toBe(400)
-        expect(response.body.errors[0].msg).toBe('Username cannot be empty');
+        expect(response.body.errors[0]).toBe('Username cannot be empty');
     })
 
     it('should return error if user with provided username exists', async () => {
@@ -99,14 +99,27 @@ describe("Fetching", () => {
 })
 
 describe('Exeecises', () => {
-    it('should validate body', async () => {
+    it('should validate body on no keys', async () => {
         const response = await request(app).post(`${USER_CREATION_URL}/1/exercises`).send({})
 
-        const dateError = response.body.errors.find(({ msg }: { msg: string }) => msg === 'Date must be in YYYY-MM-DD format')
-        const descError = response.body.errors.find(({ msg }: { msg: string }) => msg === 'Missing required description value')
-        const durationError = response.body.errors.find(({ msg }: { msg: string }) => msg === 'Missing required duration value')
 
-        expect(dateError).toBeDefined()
+        const descError = response.body.errors.find((msg: string) => msg === 'Missing required description value')
+        const durationError = response.body.errors.find((msg: string) => msg === 'Missing required duration value')
+
+        expect(descError).toBeDefined()
+        expect(durationError).toBeDefined()
+    })
+
+    it('should validate body on keys with empty values', async () => {
+        const response = await request(app).post(`${USER_CREATION_URL}/1/exercises`).send({
+            description: "",
+            duration: "",
+            date: ""
+        })
+
+        const descError = response.body.errors.find((msg: string) => msg === 'Min length of description is 1')
+        const durationError = response.body.errors.find((msg: string) => msg === 'Duration should be a number')
+
         expect(descError).toBeDefined()
         expect(durationError).toBeDefined()
     })
@@ -116,6 +129,20 @@ describe('Exeecises', () => {
 
         expect(response.status).toBe(404)
         expect(response.body.error).toBe('No user with provided id found')
+    })
+
+    it('should show error on not valid date', async () => {
+        const response = await request(app).post(`${USER_CREATION_URL}/1/exercises`).send({ date: '2025-40-40', description: "Test", duration: 1000 })
+
+        expect(response.status).toBe(400)
+        expect(response.body.errors[0]).toBe('Not a valid date')
+    })
+
+    it('should show error if no correct id provided', async () => {
+        const response = await request(app).post(`${USER_CREATION_URL}/test/exercises`).send({ date: '2025-10-10', description: "Test", duration: 1000 })
+
+        expect(response.status).toBe(400)
+        expect(response.body.error).toBe('No userId provided')
     })
 
     it('should create exercise', async () => {
@@ -133,19 +160,34 @@ describe('Exeecises', () => {
 })
 
 describe('Logs', () => {
-    it('should validate body', async () => {
-        const response = await request(app).post(`${USER_CREATION_URL}/1/logs?to="to"&from="from"&limit='DD'`)
+    it('should validate body on invalid format', async () => {
+        const response = await request(app).get(`${USER_CREATION_URL}/1/logs?to="to"&from="from"&limit='DD'`)
 
-        const toError = response.body.errors.find(({ msg }: { msg: string }) => msg === 'To must be in YYYY-MM-DD format')
-        const fromError = response.body.errors.find(({ msg }: { msg: string }) => msg === 'To must be in YYYY-MM-DD format')
-        const limitError = response.body.errors.find(({ msg, path }: { msg: string, path: string }) => {
-            return msg === 'Invalid value' && path === 'limit'
+        const toError = response.body.errors.find((msg: string) => msg === 'Invalid date format, property: to, must be yyyy-mm-dd')
+        const fromError = response.body.errors.find((msg: string) => msg === 'Invalid date format, property: from, must be yyyy-mm-dd')
+        const limitError = response.body.errors.find((msg: string) => {
+            return msg === 'Limit should be a number'
         })
 
         expect(toError).toBeDefined()
         expect(fromError).toBeDefined()
         expect(limitError).toBeDefined()
     })
+
+    it('should validate body', async () => {
+        const response = await request(app).get(`${USER_CREATION_URL}/1/logs?to=""&from=""&limit=-1`)
+
+        const toError = response.body.errors.find((msg: string) => msg === 'Invalid date format, property: to, must be yyyy-mm-dd')
+        const fromError = response.body.errors.find((msg: string) => msg === 'Invalid date format, property: from, must be yyyy-mm-dd')
+        const limitError = response.body.errors.find((msg: string) => {
+            return msg === 'Limit must be positive'
+        })
+
+        expect(toError).toBeDefined()
+        expect(fromError).toBeDefined()
+        expect(limitError).toBeDefined()
+    })
+
 
     it('should return data', async () => {
         jest.spyOn(database, 'getUser').mockResolvedValue({ id: 1, username: "Test" })
@@ -157,7 +199,7 @@ describe('Logs', () => {
             date: '2025-10-10'
         }])
 
-        const response = await request(app).post(`${USER_CREATION_URL}/1/logs?to=2025-10-12&from=2025-10-10&limit=10`)
+        const response = await request(app).get(`${USER_CREATION_URL}/1/logs?to=2025-10-12&from=2025-10-10&limit=10`)
 
         expect(spy).toHaveBeenCalledTimes(1)
         expect(spy).toHaveBeenCalledWith(1, '2025-10-10', '2025-10-12', 10)

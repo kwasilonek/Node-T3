@@ -112,6 +112,12 @@ app.post('/api/users/:_id/exercises', [
   body('description').exists().withMessage('Missing required description value').isString().isLength({ min: 1 }).withMessage('Min length of description is 1'),
   body('duration').exists().withMessage('Missing required duration value')
     .isNumeric().withMessage('Duration should be a number')
+    .custom(value => {
+      if (value <= 0) {
+        throw new Error('Duration must be positive');
+      }
+      return true;
+    })
 ], async (req: Request<{ _id: string }, {}, { duration?: number; description?: string; date?: string; }>, res: Response<CreatedExerciseResponse | { error: string } | { errors: ValidationError[] }>) => {
   const errors = validationResult(req);
 
@@ -152,10 +158,16 @@ app.post('/api/users/:_id/exercises', [
 
 })
 
-app.post('/api/users/:_id/logs', [
+app.get('/api/users/:_id/logs', [
   query('to').optional().custom(val => customDateValidation(val, 'to')),
   query('from').optional().custom(val => customDateValidation(val, 'from')),
   query('limit').optional().isNumeric().withMessage('Limit should be a number')
+    .custom(value => {
+      if (value <= 0) {
+        throw new Error('Limit must be positive');
+      }
+      return true;
+    })
 ],
   async (req: Request<{ _id: string }, {}, {}, { from: string, to: string, limit: number }>, res: Response<{ error: string } | UserExerciseLog | { errors: ValidationError[] }>) => {
 
